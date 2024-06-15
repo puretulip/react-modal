@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
-import { Button, Modal } from 'antd';
-import Histogram from './Histogram';
+import { Button } from 'antd';
+import ModalComponent from './ModalComponent';
 
 function App() {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedRadio, setSelectedRadio] = useState(null);
 
   const showModal = () => {
     setIsModalVisible(true);
   };
 
-  const handleOk = () => {
-    setIsModalVisible(false);
-  };
-
   const handleCancel = () => {
     setIsModalVisible(false);
+    setSelectedRadio(null); // Reset selectedRadio state
+  };
+
+  const handleDatasetChange = e => {
+    setSelectedRadio(e.target.value);
   };
 
   return (
@@ -23,9 +25,12 @@ function App() {
         <Button type="primary" onClick={showModal}>
           Open Histogram
         </Button>
-        <Modal title="MNIST Data Distribution" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel} width={800}>
-          <Histogram />
-        </Modal>
+        <ModalComponent
+          isModalVisible={isModalVisible}
+          handleCancel={handleCancel}
+          selectedDataset={selectedRadio}
+          handleDatasetChange={handleDatasetChange}
+        />
       </header>
     </div>
   );

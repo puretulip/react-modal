@@ -2,15 +2,15 @@ import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import { Card } from 'antd';
 
-function Histogram() {
+function Histogram({ dataset }) {
     const [data, setData] = useState([]);
 
     useEffect(() => {
-        // Load data from JSON file
-        fetch('histogram.json')
+        // Load data from selected dataset
+        fetch(`${dataset}.json`)
             .then(response => response.json())
             .then(data => setData(data));
-    }, []);
+    }, [dataset]);
 
     return (
         <Card style={{ width: '100%' }}>
