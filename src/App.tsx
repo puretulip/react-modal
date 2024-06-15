@@ -1,23 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { Button, Modal } from 'antd';
+import Histogram from './Histogram';
 
 function App() {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <Button type="primary" onClick={showModal}>
+          Open Histogram
+        </Button>
+        <Modal title="MNIST Data Distribution" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel} width={800}>
+          <Histogram />
+        </Modal>
       </header>
     </div>
   );
