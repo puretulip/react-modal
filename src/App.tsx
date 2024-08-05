@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
-import { Button } from 'antd';
+import { Button, Modal } from 'antd';
 import ModalComponent from './ModalComponent';
+import HistogramComponent from './HistogramComponent';
 
 function App() {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedRadio, setSelectedRadio] = useState(null);
+  const [isHistogramModalVisible, setIsHistogramModalVisible] = useState(false);
+  const [selectedRadio, setSelectedRadio] = useState<string | null>(null);
 
   const showModal = () => {
     setIsModalVisible(true);
+  };
+
+  const showHistogramModal = () => {
+    setIsHistogramModalVisible(true);
   };
 
   const handleCancel = () => {
@@ -15,7 +21,11 @@ function App() {
     setSelectedRadio(null); // Reset selectedRadio state
   };
 
-  const handleDatasetChange = e => {
+  const handleHistogramModalCancel = () => {
+    setIsHistogramModalVisible(false);
+  };
+
+  const handleDatasetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedRadio(e.target.value);
   };
 
@@ -23,6 +33,9 @@ function App() {
     <div className="App">
       <header className="App-header">
         <Button type="primary" onClick={showModal}>
+          Open Modal
+        </Button>
+        <Button type="primary" onClick={showHistogramModal} style={{ marginLeft: '10px' }}>
           Open Histogram
         </Button>
         <ModalComponent
@@ -31,6 +44,14 @@ function App() {
           selectedDataset={selectedRadio}
           handleDatasetChange={handleDatasetChange}
         />
+        <Modal
+          title="Histogram"
+          visible={isHistogramModalVisible}
+          onCancel={handleHistogramModalCancel}
+          footer={null}
+        >
+          <HistogramComponent dataset="train_metadata"/>
+        </Modal>
       </header>
     </div>
   );
