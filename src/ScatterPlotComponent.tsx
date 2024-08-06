@@ -3,30 +3,42 @@ import Plot from 'react-plotly.js';
 
 interface ScatterPlotComponentProps {
   dataset: string;
+  labelDataset: string;
 }
 
-const ScatterPlotComponent: React.FC<ScatterPlotComponentProps> = ({ dataset }) => {
+const ScatterPlotComponent: React.FC<ScatterPlotComponentProps> = ({ dataset, labelDataset }) => {
   const [xValues, setXValues] = useState<number[]>([]);
   const [yValues, setYValues] = useState<number[]>([]);
+  const [labels, setLabels] = useState<number[]>([]);
+  const [hoverText, setHoverText] = useState<string[]>([]);
 
   useEffect(() => {
-    // Load data from the selected dataset
-    fetch(`${dataset}.json`)
-      .then(response => response.json())
-      .then(data => {
-        const xVals: number[] = [];
-        const yVals: number[] = [];
+    // Fetch data from both JSON files
+    Promise.all([
+      fetch(`${dataset}.json`).then(response => response.json()),
+      fetch(`${labelDataset}.json`).then(response => response.json())
+    ]).then(([data, labelData]) => {
+      const xVals: number[] = [];
+      const yVals: number[] = [];
+      const labelVals: number[] = [];
+      const hoverTexts: string[] = [];
 
-        // Extract x and y values from the data
-        Object.values(data).forEach((coords: number[]) => {
-          xVals.push(coords[0]);
-          yVals.push(coords[1]);
-        });
-
-        setXValues(xVals);
-        setYValues(yVals);
+      // Extract x, y values and labels from the data
+      Object.keys(data).forEach(key => {
+        const coords = data[key];
+        xVals.push(coords[0]);
+        yVals.push(coords[1]);
+        const label = labelData.metadata[key];
+        labelVals.push(label);
+        hoverTexts.push(`Label: ${label}`);
       });
-  }, [dataset]);
+
+      setXValues(xVals);
+      setYValues(yVals);
+      setLabels(labelVals);
+      setHoverText(hoverTexts);
+    });
+  }, [dataset, labelDataset]);
 
   return (
     <div>
@@ -36,8 +48,14 @@ const ScatterPlotComponent: React.FC<ScatterPlotComponentProps> = ({ dataset }) 
             x: xValues,
             y: yValues,
             mode: 'markers',
-            type: 'scattergl',
-            marker: { color: 'blue' },
+            type: 'scattergl', // Use scattergl for WebGL rendering
+            marker: {
+              color: labels,
+              colorscale: 'Viridis', // Choose a color scale
+              showscale: true
+            },
+            text: hoverText,
+            hoverinfo: 'text'
           },
         ]}
         layout={{ title: 'Scatter Plot of Train Data' }}

@@ -70,7 +70,7 @@ const App: React.FC = () => {
           onCancel={handleScatterPlotModalCancel}
           footer={null}
         >
-          <ScatterPlotComponent dataset="train_features_reduced" />
+          <ScatterPlotComponent dataset="train_features_reduced" labelDataset="train_label_metadata" />
         </Modal>
       </header>
     </div>
