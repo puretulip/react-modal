@@ -7,10 +7,7 @@ interface ScatterPlotComponentProps {
 }
 
 const ScatterPlotComponent: React.FC<ScatterPlotComponentProps> = ({ dataset, labelDataset }) => {
-  const [xValues, setXValues] = useState<number[]>([]);
-  const [yValues, setYValues] = useState<number[]>([]);
-  const [labels, setLabels] = useState<number[]>([]);
-  const [hoverText, setHoverText] = useState<string[]>([]);
+  const [traces, setTraces] = useState<any[]>([]);
 
   useEffect(() => {
     // Fetch data from both JSON files
@@ -18,46 +15,42 @@ const ScatterPlotComponent: React.FC<ScatterPlotComponentProps> = ({ dataset, la
       fetch(`${dataset}.json`).then(response => response.json()),
       fetch(`${labelDataset}.json`).then(response => response.json())
     ]).then(([data, labelData]) => {
-      const xVals: number[] = [];
-      const yVals: number[] = [];
-      const labelVals: number[] = [];
-      const hoverTexts: string[] = [];
+      const traceMap: { [label: number]: { x: number[], y: number[], text: string[] } } = {};
 
       // Extract x, y values and labels from the data
       Object.keys(data).forEach(key => {
         const coords = data[key];
-        xVals.push(coords[0]);
-        yVals.push(coords[1]);
         const label = labelData.metadata[key];
-        labelVals.push(label);
-        hoverTexts.push(`Label: ${label}`);
+
+        if (!traceMap[label]) {
+          traceMap[label] = { x: [], y: [], text: [] };
+        }
+
+        traceMap[label].x.push(coords[0]);
+        traceMap[label].y.push(coords[1]);
+        traceMap[label].text.push(`Label: ${label}`);
       });
 
-      setXValues(xVals);
-      setYValues(yVals);
-      setLabels(labelVals);
-      setHoverText(hoverTexts);
+      // Convert traceMap to an array of traces
+      const tracesArray = Object.keys(traceMap).map(label => ({
+        x: traceMap[Number(label)].x,
+        y: traceMap[Number(label)].y,
+        mode: 'markers',
+        type: 'scattergl', // Use scattergl for WebGL rendering
+        name: `Label ${label}`,
+        text: traceMap[Number(label)].text,
+        hoverinfo: 'text',
+        marker: { size: 8 }
+      }));
+
+      setTraces(tracesArray);
     });
   }, [dataset, labelDataset]);
 
   return (
     <div>
       <Plot
-        data={[
-          {
-            x: xValues,
-            y: yValues,
-            mode: 'markers',
-            type: 'scattergl', // Use scattergl for WebGL rendering
-            marker: {
-              color: labels,
-              colorscale: 'Viridis', // Choose a color scale
-              showscale: true
-            },
-            text: hoverText,
-            hoverinfo: 'text'
-          },
-        ]}
+        data={traces}
         layout={{ title: 'Scatter Plot of Train Data' }}
       />
     </div>
